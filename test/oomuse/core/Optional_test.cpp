@@ -28,7 +28,7 @@ int numInstances;
 class InstanceCounter {
  public:
   InstanceCounter() { ++numInstances; }
-  InstanceCounter(const InstanceCounter& other) { ++numInstances; }
+  InstanceCounter(const InstanceCounter&) { ++numInstances; }
   ~InstanceCounter() { --numInstances; }
 };
 
