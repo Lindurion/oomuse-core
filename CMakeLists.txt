@@ -15,10 +15,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(oomuse-core)
 
-enable_testing()
-
-find_package(GTest REQUIRED)
-
 
 ################################################################################
 # Build Configuration Options (Set via CMake GUI)
@@ -26,6 +22,13 @@ find_package(GTest REQUIRED)
 
 set(OOMUSE_CRT_LINKAGE "dynamic" CACHE STRING
     "'static' or 'dynamic' C runtime library linkage for Visual C++")
+
+# Use OOMUSE_CRT_LINKAGE to determine which gtest lib to link against.
+if(OOMUSE_CRT_LINKAGE STREQUAL "static")
+  set(GTEST_MSVC_SEARCH "MT" CACHE STRING "" "FORCE")
+else()
+  set(GTEST_MSVC_SEARCH "MD" CACHE STRING "" "FORCE")
+endif()
 
 
 ################################################################################
@@ -80,7 +83,18 @@ set(OOMUSE_CORE_CPP_FILES
     src/oomuse/core/strings.cpp)
 
 add_library(oomuse-core STATIC ${OOMUSE_CORE_CPP_FILES})
-set_property(TARGET oomuse-core PROPERTY OUTPUT_NAME_DEBUG oomuse-core-debug)
+if(OOMUSE_CRT_LINKAGE STREQUAL "static")
+  set_property(TARGET oomuse-core PROPERTY
+      OUTPUT_NAME_DEBUG oomuse-core-debug)
+  set_property(TARGET oomuse-core PROPERTY
+      OUTPUT_NAME_RELEASE oomuse-core)
+else()
+  set_property(TARGET oomuse-core PROPERTY
+      OUTPUT_NAME_DEBUG oomuse-core-md-debug)
+  set_property(TARGET oomuse-core PROPERTY
+      OUTPUT_NAME_RELEASE oomuse-core-md)
+endif()
+
 
 set_property(TARGET oomuse-core
     APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -98,6 +112,9 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/oomuse
 ################################################################################
 # oomuse-core Tests
 ################################################################################
+
+enable_testing()
+find_package(GTest REQUIRED)
 
 set(OOMUSE_CORE_TEST_FILES
     test/oomuse/core/FixedArray_test.cpp
