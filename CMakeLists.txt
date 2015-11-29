@@ -21,6 +21,58 @@ find_package(GTest REQUIRED)
 
 
 ################################################################################
+# Build Configuration Options (Set via CMake GUI)
+################################################################################
+
+set(OOMUSE_CRT_LINKAGE "dynamic" CACHE STRING
+    "'static' or 'dynamic' C runtime library linkage for Visual C++")
+
+
+################################################################################
+# Compiler Flags
+################################################################################
+
+set(oomuse_compile_flags "")
+set(oomuse_compile_definitions "")
+
+if(MSVC)
+  # Override CMake defaults.
+  set(compiler_flag_lists
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
+
+  foreach(flag_list_name ${compiler_flag_lists})
+    # Set C runtime library linkage.
+    if(OOMUSE_CRT_LINKAGE STREQUAL "static")
+      string(REPLACE "/MD" "/MT" ${flag_list_name} "${${flag_list_name}}")
+    else()
+      string(REPLACE "/MT" "/MD" ${flag_list_name} "${${flag_list_name}}")
+    endif()
+
+    # Use stricter warnings.
+    string(REPLACE "/W3" "/W4" ${flag_list_name} "${${flag_list_name}}")
+  endforeach()
+
+  list(APPEND oomuse_compile_flags "/GS")  # Use buffer security checks.
+  list(APPEND oomuse_compile_flags "/W4" "/WX")  # Treat warnings as errors.
+
+  # Suppress warnings about std::uninitialized_copy().
+  list(APPEND oomuse_compile_definitions _SCL_SECURE_NO_WARNINGS)
+
+  # Define standard Unicode Win32 flags.
+  list(APPEND oomuse_compile_definitions _WIN32 WIN32 WIN32_LEAN_AND_MEAN)
+  list(APPEND oomuse_compile_definitions _UNICODE UNICODE)
+elseif((CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
+  # Treat warnings as errors.
+  list(APPEND oomuse_compile_flags "-Wall" "-Wshadow" "-Werror")
+endif()
+
+# Convert list (implicit semicolons) to space-separated string of flags.
+string(REPLACE ";" " " oomuse_compile_flags "${oomuse_compile_flags}")
+
+
+################################################################################
 # oomuse-core Library
 ################################################################################
 
@@ -30,6 +82,11 @@ set(OOMUSE_CORE_CPP_FILES
 add_library(oomuse-core STATIC ${OOMUSE_CORE_CPP_FILES})
 set_property(TARGET oomuse-core
     APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set_property(TARGET oomuse-core PROPERTY CXX_STANDARD 14)
+set_property(TARGET oomuse-core
+    APPEND PROPERTY COMPILE_FLAGS "${oomuse_compile_flags}")
+set_property(TARGET oomuse-core
+    APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
 
 
 ################################################################################
@@ -48,12 +105,11 @@ set_property(TARGET oomuse-core_test
     APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_property(TARGET oomuse-core_test
     APPEND PROPERTY INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIRS})
-
-if(MSVC)
-  # Suppress warnings about std::uninitialized_copy().
-  set_property(TARGET oomuse-core_test
-      APPEND PROPERTY COMPILE_DEFINITIONS _SCL_SECURE_NO_WARNINGS)
-endif()
+set_property(TARGET oomuse-core_test PROPERTY CXX_STANDARD 14)
+set_property(TARGET oomuse-core_test
+    APPEND PROPERTY COMPILE_FLAGS "${oomuse_compile_flags}")
+set_property(TARGET oomuse-core_test
+    APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
 
 target_link_libraries(oomuse-core_test oomuse-core)
 target_link_libraries(oomuse-core_test ${GTEST_BOTH_LIBRARIES})
