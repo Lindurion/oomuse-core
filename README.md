@@ -8,7 +8,7 @@ Small core C++ library with essentials that all other oomuse libraries are built
 File or Class | Description
 --------------|--------------------------------------------------
 [int_types](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/int_types.h) | Shorter to type aliases like `int32` and `uint64`
-[readability_macros](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/readability_macros.h) | `CANT_COPY(MyClass)`, `CANT_MOVE(MyClass)`, `CALL_MEMBER_FN(obj, fnPtr)`, ...
+[readability_macros](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/readability_macros.h) | `CANT_COPY(MyClass)`, `CANT_MOVE(MyClass)`, `CALL_MEMBER_FN()`, ...
 [FixedArray](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/FixedArray.h) | Runtime-determined fixed-length array
 [Optional](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/Optional.h) | Optional value that may or may not be present (useful return type)
 [Validator](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/Validator.h), <br> [Validators](https://github.com/Lindurion/oomuse-core/blob/master/include/oomuse/core/Validators.h) | Simple value validation for numeric ranges, non-empty strings, etc.
