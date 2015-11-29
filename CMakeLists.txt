@@ -88,6 +88,10 @@ set_property(TARGET oomuse-core
 set_property(TARGET oomuse-core
     APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
 
+install(TARGETS oomuse-core DESTINATION lib)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/oomuse
+    DESTINATION include)
+
 
 ################################################################################
 # oomuse-core Tests
