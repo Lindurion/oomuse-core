@@ -3,7 +3,7 @@
 Small core C++ library with essentials that all other oomuse libraries are built on top of. This library is not music-related, so feel free to use it in any C++ project.
 
 
-## What's In the Core Library?
+## What's in the Core Library?
 
 File or Class | Description
 --------------|--------------------------------------------------
@@ -86,9 +86,9 @@ Release          | unchecked              | libgtest.a <br> libgtest_main.a   | 
 
 Once googletest is installed, you're ready to build oomuse-core. You can follow the same basic procedure:
 
-1. Clone this git repro somewhere (_e.g._ `C:\github\oomuse-core` or `~/github/oomuse-core`).
-1. Create a separate directory to use for building (_e.g._ `C:\cmakebuild\oomuse-core` or `~/cmakebuild/oomuse-core`).
-1. Set up a CMake build environment and run `cmake-gui` to customize the output location:
+- Clone this git repro somewhere (_e.g._ `C:\github\oomuse-core` or `~/github/oomuse-core`).
+- Create a separate directory to use for building (_e.g._ `C:\cmakebuild\oomuse-core` or `~/cmakebuild/oomuse-core`).
+- Set up a CMake build environment and run `cmake-gui` to customize the output location:
   - Change `CMAKE_INSTALL_PREFIX` to a separate install dir (_e.g._ `C:\cmakeinstall\oomuse-core` or `~/cmakeinstall/oomuse-core`).
   - Set `CMAKE_BUILD_TYPE` to `Debug` or `Release`. (You can repeat these steps if you want to install both variants).
   - If you're using the Microsoft Visual C++ compiler on Windows, set `OOMUSE_CRT_LINKAGE` to `dynamic` (corresponds to DLL linkage of the C runtime library, `/MDd` and `/MD` compiler flags) or `static` (corresponds to static linkage of the C runtime library, `/MTd` and `/MT` flags). This needs to match the compiler settings for whatever project you're planning to use oomuse-core from. (If later on you get a spew of linker error output complaining about missing symbols from the C standard library, try the other one).
@@ -144,8 +144,28 @@ The first command will run the tests and output success or failiure status. To s
 
 ## Using oomuse-core from Your Own Project
 
-(Instructions coming soon).
+Copy [`cmake/Modules/FindOOMuseCore.cmake`](https://github.com/Lindurion/oomuse-core/blob/master/cmake/Modules/FindOOMuseCore.cmake) into your CMake project at `<your-project>/cmake/Modules/FindOOMuseCore.cmake`.
 
+Set input CMake cache variables using `cmake-gui`:
+  - `OOMUSE_ROOT`: Set this file path to the dir below the oomuse-core install dir, e.g. `C:/cmakeinstall` or `/Users/<your-username>/cmakeinstall`
+  - `OOMUSE_CRT_LINKAGE`: For Windows with the Microsoft Visual C++ compiler, set to `dynamic` or `static` to control C runtime library linkage.
+
+In your root CMakeLists.txt, add this line before using oomuse-core:
+```CMake
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+```
+
+Then find the OOMuseCore package:
+```CMake
+find_package(OOMuseCore REQUIRED)
+```
+
+Finally, add the include dirs and link against the library for your target:
+```CMake
+set_property(TARGET <your-target>
+    APPEND PROPERTY INCLUDE_DIRECTORIES ${OOMUSECORE_INCLUDE_DIRS})
+target_link_libraries(<your-target> ${OOMUSECORE_LIBRARIES})
+```
 
 ## License
 
