@@ -80,6 +80,8 @@ set(OOMUSE_CORE_CPP_FILES
     src/oomuse/core/strings.cpp)
 
 add_library(oomuse-core STATIC ${OOMUSE_CORE_CPP_FILES})
+set_property(TARGET oomuse-core PROPERTY OUTPUT_NAME_DEBUG oomuse-core-debug)
+
 set_property(TARGET oomuse-core
     APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_property(TARGET oomuse-core PROPERTY CXX_STANDARD 14)
