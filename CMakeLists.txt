@@ -120,6 +120,7 @@ set(OOMUSE_CORE_TEST_FILES
     test/oomuse/core/FixedArray_test.cpp
     test/oomuse/core/Optional_test.cpp
     test/oomuse/core/Validators_test.cpp
+    test/oomuse/core/constexpr_assert_test.cpp
     test/oomuse/core/strings_test.cpp)
 
 add_executable(oomuse-core_test ${OOMUSE_CORE_TEST_FILES})
