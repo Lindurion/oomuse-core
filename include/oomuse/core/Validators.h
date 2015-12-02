@@ -91,7 +91,7 @@ class Validators {
 template<typename T>
 class LessValidator : public Validator<T> {
  public:
-  LessValidator(const T& value) : value_(value) {}
+  explicit LessValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value < value_) {
@@ -112,7 +112,7 @@ class LessValidator : public Validator<T> {
 template<typename T>
 class LessOrEqualValidator : public Validator<T> {
  public:
-  LessOrEqualValidator(const T& value) : value_(value) {}
+  explicit LessOrEqualValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value <= value_) {
@@ -133,7 +133,7 @@ class LessOrEqualValidator : public Validator<T> {
 template<typename T>
 class GreaterValidator : public Validator<T> {
  public:
-  GreaterValidator(const T& value) : value_(value) {}
+  explicit GreaterValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value > value_) {
@@ -154,7 +154,7 @@ class GreaterValidator : public Validator<T> {
 template<typename T>
 class GreaterOrEqualValidator : public Validator<T> {
  public:
-  GreaterOrEqualValidator(const T& value) : value_(value) {}
+  explicit GreaterOrEqualValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value >= value_) {
@@ -175,7 +175,7 @@ class GreaterOrEqualValidator : public Validator<T> {
 template<typename T>
 class EqualValidator : public Validator<T> {
  public:
-  EqualValidator(const T& value) : value_(value) {}
+  explicit EqualValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value == value_) {
@@ -196,7 +196,7 @@ class EqualValidator : public Validator<T> {
 template<typename T>
 class NotEqualValidator : public Validator<T> {
  public:
-  NotEqualValidator(const T& value) : value_(value) {}
+  explicit NotEqualValidator(const T& value) : value_(value) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value != value_) {
@@ -217,7 +217,7 @@ class NotEqualValidator : public Validator<T> {
 template<typename T>
 class SizeLessOrEqualValidator : public Validator<T> {
  public:
-  SizeLessOrEqualValidator(std::size_t size) : size_(size) {}
+  explicit SizeLessOrEqualValidator(std::size_t size) : size_(size) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value.size() <= size_) {
@@ -239,7 +239,7 @@ class SizeLessOrEqualValidator : public Validator<T> {
 template<typename T>
 class SizeGreaterOrEqualValidator : public Validator<T> {
  public:
- SizeGreaterOrEqualValidator(std::size_t size) : size_(size) {}
+  explicit SizeGreaterOrEqualValidator(std::size_t size) : size_(size) {}
 
   virtual std::string checkValidationErrors(const T& value) const {
     if (value.size() >= size_) {
@@ -263,7 +263,7 @@ class OrValidator : public Validator<T> {
  public:
   using UniqueValidator = std::unique_ptr<Validator<T>>;
 
-  OrValidator(std::vector<UniqueValidator>&& validators)
+  explicit OrValidator(std::vector<UniqueValidator>&& validators)
       : validators_(std::forward<std::vector<UniqueValidator>>(validators)) {
     assert(!validators_.empty());
   }
@@ -294,7 +294,7 @@ class AndValidator : public Validator<T> {
  public:
   using UniqueValidator = std::unique_ptr<Validator<T>>;
 
-  AndValidator(std::vector<UniqueValidator>&& validators)
+  explicit AndValidator(std::vector<UniqueValidator>&& validators)
       : validators_(std::forward<std::vector<UniqueValidator>>(validators)) {
     assert(!validators_.empty());
   }
