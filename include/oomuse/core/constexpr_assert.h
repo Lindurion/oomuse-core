@@ -40,6 +40,19 @@ namespace oomuse {
 
 
 #ifndef CONSTEXPR_ASSERT
+
+#ifdef NDEBUG
+  /**
+   * Allows use of assert() within a C++11 constexpr function, outputting the
+   * correct file and line number where the assertion occurred. Sample usage
+   * that returns x / y after asserting that y > 0:
+   *
+   * constexpr int divByPositive(int x, int y) {
+   *   return CONSTEXPR_ASSERT(y > 0, "y must be positive", x / y);
+   * }
+   */
+  #define CONSTEXPR_ASSERT(condition, failureMessage, result) (result)
+#else
   /**
    * Allows use of assert() within a C++11 constexpr function, outputting the
    * correct file and line number where the assertion occurred. Sample usage
@@ -54,7 +67,9 @@ namespace oomuse {
                   : throw oomuse::ConstexprAssertFailure([] {  \
                       assert(!(failureMessage));               \
                     })
-#endif
+#endif  // NDEBUG
+
+#endif  // CONSTEXPR_ASSERT
 
 
 #endif  // OOMUSE_CORE_CONSTEXPR_ASSERT_H
