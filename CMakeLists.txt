@@ -16,19 +16,9 @@ cmake_minimum_required(VERSION 3.0.2)
 project(oomuse-core)
 
 
-################################################################################
-# Build Configuration Options (Set via CMake GUI)
-################################################################################
-
-set(OOMUSE_CRT_LINKAGE "dynamic" CACHE STRING
-    "'static' or 'dynamic' C runtime library linkage for Visual C++")
-
-# Use OOMUSE_CRT_LINKAGE to determine which gtest lib to link against.
-if(OOMUSE_CRT_LINKAGE STREQUAL "static")
-  set(GTEST_MSVC_SEARCH "MT" CACHE STRING "" "FORCE")
-else()
-  set(GTEST_MSVC_SEARCH "MD" CACHE STRING "" "FORCE")
-endif()
+# Lots of build configuration (namely dependencies) handled by conan output:
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 
 ################################################################################
@@ -43,15 +33,7 @@ if(MSVC)
   set(compiler_flag_lists
       CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
       CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
-
   foreach(flag_list_name ${compiler_flag_lists})
-    # Set C runtime library linkage.
-    if(OOMUSE_CRT_LINKAGE STREQUAL "static")
-      string(REPLACE "/MD" "/MT" ${flag_list_name} "${${flag_list_name}}")
-    else()
-      string(REPLACE "/MT" "/MD" ${flag_list_name} "${${flag_list_name}}")
-    endif()
-
     # Use stricter warnings.
     string(REPLACE "/W3" "/W4" ${flag_list_name} "${${flag_list_name}}")
   endforeach()
@@ -76,25 +58,18 @@ string(REPLACE ";" " " oomuse_compile_flags "${oomuse_compile_flags}")
 
 
 ################################################################################
-# oomuse-core Library
+# oomuse-core Static Library
 ################################################################################
 
 set(OOMUSE_CORE_CPP_FILES
     src/oomuse/core/strings.cpp)
-
 add_library(oomuse-core STATIC ${OOMUSE_CORE_CPP_FILES})
-if(OOMUSE_CRT_LINKAGE STREQUAL "static")
-  set_property(TARGET oomuse-core PROPERTY
-      OUTPUT_NAME_DEBUG oomuse-core-debug)
-  set_property(TARGET oomuse-core PROPERTY
-      OUTPUT_NAME_RELEASE oomuse-core)
-else()
-  set_property(TARGET oomuse-core PROPERTY
-      OUTPUT_NAME_DEBUG oomuse-core-md-debug)
-  set_property(TARGET oomuse-core PROPERTY
-      OUTPUT_NAME_RELEASE oomuse-core-md)
-endif()
 
+
+set_property(TARGET oomuse-core PROPERTY
+    OUTPUT_NAME_DEBUG oomuse-core-debug)
+set_property(TARGET oomuse-core PROPERTY
+    OUTPUT_NAME_RELEASE oomuse-core)
 
 set_property(TARGET oomuse-core
     APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -104,38 +79,34 @@ set_property(TARGET oomuse-core
 set_property(TARGET oomuse-core
     APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
 
-install(TARGETS oomuse-core DESTINATION lib)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/oomuse
-    DESTINATION include)
-
 
 ################################################################################
 # oomuse-core Tests
 ################################################################################
 
-enable_testing()
-find_package(GTest REQUIRED)
+# Testing behavior gets specified & defined through conan option.
+if(OOMUSE_CORE_TESTING)
+  enable_testing()
 
-set(OOMUSE_CORE_TEST_FILES
-    test/oomuse/core/FixedArray_test.cpp
-    test/oomuse/core/Optional_test.cpp
-    test/oomuse/core/Validators_test.cpp
-    test/oomuse/core/constexpr_assert_test.cpp
-    test/oomuse/core/strings_test.cpp)
+  set(OOMUSE_CORE_TEST_FILES
+      test/oomuse/core/FixedArray_test.cpp
+      test/oomuse/core/Optional_test.cpp
+      test/oomuse/core/Validators_test.cpp
+      test/oomuse/core/constexpr_assert_test.cpp
+      test/oomuse/core/strings_test.cpp)
 
-add_executable(oomuse-core_test ${OOMUSE_CORE_TEST_FILES})
+  add_executable(oomuse-core_test ${OOMUSE_CORE_TEST_FILES})
 
-set_property(TARGET oomuse-core_test
-    APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set_property(TARGET oomuse-core_test
-    APPEND PROPERTY INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIRS})
-set_property(TARGET oomuse-core_test PROPERTY CXX_STANDARD 14)
-set_property(TARGET oomuse-core_test
-    APPEND PROPERTY COMPILE_FLAGS "${oomuse_compile_flags}")
-set_property(TARGET oomuse-core_test
-    APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
+  set_property(TARGET oomuse-core_test
+      APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  set_property(TARGET oomuse-core_test PROPERTY CXX_STANDARD 14)
+  set_property(TARGET oomuse-core_test
+      APPEND PROPERTY COMPILE_FLAGS "${oomuse_compile_flags}")
+  set_property(TARGET oomuse-core_test
+      APPEND PROPERTY COMPILE_DEFINITIONS "${oomuse_compile_definitions}")
 
-target_link_libraries(oomuse-core_test oomuse-core)
-target_link_libraries(oomuse-core_test ${GTEST_BOTH_LIBRARIES})
+  target_link_libraries(oomuse-core_test oomuse-core)
+  target_link_libraries(oomuse-core_test ${CONAN_LIBS})
 
-add_test(run_oomuse-core_test oomuse-core_test)
+  add_test(NAME run_oomuse-core_test COMMAND oomuse-core_test)
+endif()
