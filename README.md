@@ -41,7 +41,7 @@ cmake
 
 Or, for more advanced projects, you can list this dependency within a `conanfile.py` file instead (see [docs](http://docs.conan.io/en/latest/conanfile_py.html)).
 
-If your project is using CMake, include the (about to be) generated `conanbuildinfo.cmake` file that configures all your conan dependencies (including oomuse-core), setup conan (which makes sure, for example, that all needed header files are now on your include path), and then link your binary or library against all conan-downloaded libs (which will include oomuse-core). For example:
+If your project is using CMake, include the (about to be) generated `conanbuildinfo.cmake` file that configures all your conan dependencies (including oomuse-core), setup conan (which makes sure, for example, that all needed header files are now on your include path), and then link your binary or library against all conan-downloaded libs (which will include oomuse-core). For example, within your `CMakeLists.txt`:
 
 ```
 cmake_minimum_required(VERSION 3.0.2)
@@ -54,7 +54,7 @@ add_executable(your_project your_project.cpp)
 target_link_libraries(your_project ${CONAN_LIBS})
 ```
 
-Include and use any **oomuse-core** code from your own.
+Include and use any **oomuse-core** code from your own. For example, from `your_project.cpp`:
 
 ```c++
 #include "oomuse/core/strings.h"
@@ -81,9 +81,9 @@ $ ./bin/your_project
 
 ## Developing oomuse-core & Running Tests
 
-To contribute changes to this library (*vs.* just using it), you should first check it out on GitHub.
+To contribute changes to this library (*vs.* just using it), you should first clone it on GitHub.
 
-Recommend building from a separate directory (that's not underneath the cloned git project, *a.k.a.* an out-of-source build).
+Recommend building from a separate directory (that's not underneath the cloned git project, known as an out-of-source build).
 
 Build & run tests:
 ```
