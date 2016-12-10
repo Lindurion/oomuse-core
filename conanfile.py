@@ -91,6 +91,7 @@ class OOMuseCoreConan(conans.ConanFile):
   # Configuring this built package for clients to depend on and use
   #=============================================================================
 
+  exports = "*"  # Export all files in this dir as part of conan package.
 
   def package(self):
     """Copies build outputs that client needs to be able to use this library."""
