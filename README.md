@@ -19,154 +19,79 @@ File or Class | Description
 ## Prerequisites
 
 - A modern C++ compiler toolchain that supports most C++14 language features and libraries. Recommendations:
-  - **Windows**: [Microsoft Visual Studio Community 2015](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) (make sure to choose custom installation and install support for C++).
+  - **Windows**: [Microsoft Visual Studio Community 2015](https://www.visualstudio.com/vs/community/) (make sure to choose custom installation and install support for C++).
   - **Mac**: [Xcode](https://developer.apple.com/xcode/download/), which should install Clang (otherwise see [Xcode Command Line Tools](https://developer.apple.com/library/ios/technotes/tn2339)); or you can directly install the [Clang](http://llvm.org/releases/download.html) compiler.
   - **Linux**: [GCC](https://gcc.gnu.org/) (almost certainly preinstalled) or [Clang](http://llvm.org/releases/download.html).
 - A recent version (3.0 or higher) of [CMake](https://cmake.org/download/).
-- Build and install [Google Test](https://github.com/google/googletest), the C++ unit testing framework used by oomuse-core. See instructions below.
+- A recent version of [conan](https://conan.io/downloads), which is used a C++ package manager that downloads and builds needed dependencies.
 
 
-## Install Google Test
+## Using oomuse-core in your own projects
 
-One day, a cross-platform build and dependency management tool will exist supporting C++ projects that makes depending on a library as simple as adding a single line and running one build command. But today is not yet that day&mdash;so for now, you've got to jump through a few hoops to get each dependency installed so that CMake projects (this one and your own if you're depending on oomuse-core from another CMake project) can find and use them.
+You can use [any build system that conan supports](http://conanio.readthedocs.io/en/latest/integrations.html), though **CMake** is highly recommended (since it is the most widely supported and gives you the flexibility to build your project from most popular compilers and IDEs, including Xcode and Visual Studio).
 
-- Clone the [Google Test](https://github.com/google/googletest) git repo somewhere (_e.g._ `C:\github\googletest` or `~/github/googletest`).
-- Create a separate directory to use for building Google Test (_e.g._ `C:\cmakebuild\googletest` or `~/cmakebuild/googletest`).
-- Set up a CMake build environment and run `cmake-gui` to customize the output location:
-  - Change `CMAKE_INSTALL_PREFIX` to a separate install dir (_e.g._ `C:\cmakeinstall\googletest` or `~/cmakeinstall/googletest`).
-  - Set `CMAKE_BUILD_TYPE` to `Debug`.
-  - Make sure `gtest_force_shared_crt` is NOT checked.
-
-Example on Windows:
+Add a requires line for **oomuse-core** within your `conanfile.txt` file (shown using CMake here):
 ```
-$ mkdir C:\cmakebuild\googletest
-$ cd C:\cmakebuild\googletest
-$ cmake -G "NMake Makefiles" C:\github\googletest
-$ cmake-gui .
+[requires]
+oomuse-core/0.1.1@lindurion/stable
+
+[generators]
+cmake
 ```
 
-Example on Mac or Linux:
-```
-$ mkdir -p ~/cmakebuild/googletest
-$ cd ~/cmakebuild/googletest
-$ cmake ~/github/googletest
-$ cmake-gui .
-```
+Or, for more advanced projects, you can list this dependency within a `conanfile.py` file instead (see [docs](http://docs.conan.io/en/latest/conanfile_py.html)).
 
-After setting `CMAKE_INSTALL_PREFIX` and `CMAKE_BUILD_TYPE` in the CMake graphical UI, click the **Configure** button and then the **Generate** button. Then you can build and install the library from the command line. And the slightly tricky part: you also need to rename the output library files so that CMake will find these versions when running a debug build.
+If your project is using CMake, include the (about to be) generated `conanbuildinfo.cmake` file that configures all your conan dependencies (including oomuse-core), setup conan (which makes sure, for example, that all needed header files are now on your include path), and then link your binary or library against all conan-downloaded libs (which will include oomuse-core). For example:
 
-On Windows:
 ```
-$ nmake install
-$ cd C:\cmakeinstall\googletest\lib
-$ rename gtest.lib gtestd.lib
-$ rename gtest_main.lib gtest_maind.lib
-$ cd C:\cmakebuild\googletest
+cmake_minimum_required(VERSION 3.0.2)
+project(YourProject)
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+add_executable(your_project your_project.cpp)
+target_link_libraries(your_project ${CONAN_LIBS})
 ```
 
-On Mac or Linux:
-```
-$ make install
-$ cd ~/cmakeinstall/googletest/lib
-$ mv libgtest.a libgtestd.a
-$ mv libgtest_main.a libgtest_maind.a
-$ cd ~/cmakebuild/googletest
-```
+Include and use any **oomuse-core** code from your own.
 
-Now repeat this process one more time on Mac/Linux and three more times on Windows so you end up with all of the following installed libraries:
+```c++
+#include "oomuse/core/strings.h"
 
-CMAKE_BUILD_TYPE | gtest_force_shared_crt | Mac/Linux                         | Windows
------------------|------------------------|-----------------------------------|--------------------------------------
-Debug            | unchecked              | libgtestd.a <br> libgtest_maind.a | gtestd.lib <br> gtest_maind.lib
-Debug            | checked                | (n/a)                             | gtest-mdd.lib <br> gtest_main-mdd.lib
-Release          | checked                | (n/a)                             | gtest-md.lib <br> gtest_main-md.lib
-Release          | unchecked              | libgtest.a <br> libgtest_main.a   | gtest.lib <br> gtest_main.lib
+namespace strings = oomuse::strings;
 
-
-## Building oomuse-core
-
-Once googletest is installed, you're ready to build oomuse-core. You can follow the same basic procedure:
-
-- Clone this git repro somewhere (_e.g._ `C:\github\oomuse-core` or `~/github/oomuse-core`).
-- Create a separate directory to use for building (_e.g._ `C:\cmakebuild\oomuse-core` or `~/cmakebuild/oomuse-core`).
-- Set up a CMake build environment and run `cmake-gui` to customize the output location:
-  - Change `CMAKE_INSTALL_PREFIX` to a separate install dir (_e.g._ `C:\cmakeinstall\oomuse-core` or `~/cmakeinstall/oomuse-core`).
-  - Set `CMAKE_BUILD_TYPE` to `Debug` or `Release`. (You can repeat these steps if you want to install both variants).
-  - If you're using the Microsoft Visual C++ compiler on Windows, set `OOMUSE_CRT_LINKAGE` to `dynamic` (corresponds to DLL linkage of the C runtime library, `/MDd` and `/MD` compiler flags) or `static` (corresponds to static linkage of the C runtime library, `/MTd` and `/MT` flags). This needs to match the compiler settings for whatever project you're planning to use oomuse-core from. (If later on you get a spew of linker error output complaining about missing symbols from the C standard library, try the other one).
-  - Add an entry for `GTEST_ROOT` of type FILEPATH with value set to whatever you set CMAKE_INSTALL_PREFIX to for googletest above (_e.g._ `C:\cmakeinstall\googletest` or `/Users/<your_username_here>/cmakeinstall/googletest`). Note that this path can't use `~`, so you'll need to expand the absolute path of your home directory if you installed within there as in the example paths here.
-
-On Windows (note that the cmake command will emit an error about not being able to find GTest&mdash;that's okay; it will be resolved when you set `GTEST_ROOT` in the CMake GUI):
-```
-$ mkdir C:\cmakebuild\oomuse-core
-$ cd C:\cmakebuild\oomuse-core
-$ cmake -G "NMake Makefiles" C:\github\oomuse-core
-$ cmake-gui .
+int main() {
+  // …
+  doSomethingWith(strings::trimWhitespace(someUserInput));
+  // …
+}
 ```
 
-And on Mac or Linux:
+Finally, install conan dependencies (including oomuse-core) and run your build from the command line:
 ```
-$ mkdir -p ~/cmakebuild/oomuse-core
-$ cd ~/cmakebuild/oomuse-core
-$ cmake ~/github/oomuse-core
-$ cmake-gui .
-```
+$ cd /path/to/yourproject/build
+$ conan install /path/to/yourproject/src
 
-Once you've set `CMAKE_INSTALL_PREFIX`, `GTEST_ROOT`, `CMAKE_BUILD_TYPE`, and (for Windows) `OOMUSE_CRT_LINKAGE`, again click **Configure** and then **Generate**. Go back to the command line to build and install the library.
-
-Windows:
-```
-$ nmake install
-```
-
-Mac and Linux:
-```
-$ make install
+$ cmake /path/to/yourproject/src -G "Visual Studio 14 2015 Win64"  # Or "Xcode", "Unix Makefiles"
+$ cmake --build . --config Release
+$ ./bin/your_project
 ```
 
 
-## Running oomuse-core Tests
+## Developing oomuse-core & Running Tests
 
-If you're just planning to use oomuse-core, this is optional, but it doesn't hurt to run tests as a sanity check that the library will work as expected on your system.
+To contribute changes to this library (*vs.* just using it), you should first check it out on GitHub.
 
-On Windows (either of these commands):
-```
-$ nmake test
-$ oomuse-core_test
-```
+Recommend building from a separate directory (that's not underneath the cloned git project, *a.k.a.* an out-of-source build).
 
-On Mac or Linux (either command):
+Build & run tests:
 ```
-$ make test
-$ ./oomuse-core_test
+$ cd /path/to/build/oomuse-core/
+$ conan install /path/to/cloned/src/for/oomuse-core -o testing=True
+$ conan build /path/to/cloned/src/for/oomuse-core
 ```
 
-The first command will run the tests and output success or failiure status. To see the individual tests or more details about a failure, use the second command to run the test executable directly.
-
-
-## Using oomuse-core from Your Own Project
-
-Copy [`cmake/Modules/FindOOMuseCore.cmake`](https://github.com/Lindurion/oomuse-core/blob/master/cmake/Modules/FindOOMuseCore.cmake) into your CMake project at `<your-project>/cmake/Modules/FindOOMuseCore.cmake`.
-
-Set input CMake cache variables using `cmake-gui`:
-  - `OOMUSE_ROOT`: Set this file path to the dir below the oomuse-core install dir, e.g. `C:/cmakeinstall` or `/Users/<your-username>/cmakeinstall`
-  - `OOMUSE_CRT_LINKAGE`: For Windows with the Microsoft Visual C++ compiler, set to `dynamic` or `static` to control C runtime library linkage.
-
-In your root CMakeLists.txt, add this line before using oomuse-core:
-```CMake
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-```
-
-Then find the OOMuseCore package:
-```CMake
-find_package(OOMuseCore REQUIRED)
-```
-
-Finally, add the include dirs and link against the library for your target:
-```CMake
-set_property(TARGET <your-target>
-    APPEND PROPERTY INCLUDE_DIRECTORIES ${OOMUSECORE_INCLUDE_DIRS})
-target_link_libraries(<your-target> ${OOMUSECORE_LIBRARIES})
-```
 
 ## License
 

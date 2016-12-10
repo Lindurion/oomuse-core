@@ -23,7 +23,7 @@ class OOMuseCoreConan(conans.ConanFile):
   #=============================================================================
 
   name = "oomuse-core"
-  version = "0.1"
+  version = "0.1.1"
 
   author = "Eric W. Barndollar (eric@EricWBarndollar.com)"
   build_policy = "missing"  # Automatically build from source when not in cache.
