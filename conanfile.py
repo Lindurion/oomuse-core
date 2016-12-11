@@ -1,4 +1,4 @@
-## Copyright 2015 Eric W. Barndollar. All rights reserved.
+## Copyright 2016 Eric W. Barndollar. All rights reserved.
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ class OOMuseCoreConan(conans.ConanFile):
   #=============================================================================
 
   name = "oomuse-core"
-  version = "0.1.1"
+  version = "0.1.2"
 
   author = "Eric W. Barndollar (eric@EricWBarndollar.com)"
   build_policy = "missing"  # Automatically build from source when not in cache.

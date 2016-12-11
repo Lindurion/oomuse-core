@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(oomuse-core)
 
 
-# Lots of build configuration (namely dependencies) handled by conan output:
+# Dependencies and their build configuration is handled by conan output:
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
@@ -94,7 +94,6 @@ if(OOMUSE_CORE_TESTING)
       test/oomuse/core/Validators_test.cpp
       test/oomuse/core/constexpr_assert_test.cpp
       test/oomuse/core/strings_test.cpp)
-
   add_executable(oomuse-core_test ${OOMUSE_CORE_TEST_FILES})
 
   set_property(TARGET oomuse-core_test
