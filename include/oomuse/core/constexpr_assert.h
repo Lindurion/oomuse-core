@@ -50,6 +50,9 @@ namespace oomuse {
    * constexpr int divByPositive(int x, int y) {
    *   return CONSTEXPR_ASSERT(y > 0, "y must be positive", x / y);
    * }
+   *
+   * Note: See UNREF_PARAM() macro in readability_macros.h in case a function
+   * parameter is only used within the condition.
    */
   #define CONSTEXPR_ASSERT(condition, failureMessage, result) (result)
 #else
@@ -61,6 +64,9 @@ namespace oomuse {
    * constexpr int divByPositive(int x, int y) {
    *   return CONSTEXPR_ASSERT(y > 0, "y must be positive", x / y);
    * }
+   *
+   * Note: See UNREF_PARAM() macro in readability_macros.h in case a function
+   * parameter is only used within the condition.
    */
   #define CONSTEXPR_ASSERT(condition, failureMessage, result)  \
       (condition) ? (result)                                   \

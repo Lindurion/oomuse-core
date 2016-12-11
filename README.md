@@ -33,7 +33,7 @@ You can use [any build system that conan supports](http://conanio.readthedocs.io
 Add a requires line for **oomuse-core** within your `conanfile.txt` file (shown using CMake here):
 ```
 [requires]
-oomuse-core/0.1.1@lindurion/stable
+oomuse-core/0.1.2@lindurion/stable
 
 [generators]
 cmake

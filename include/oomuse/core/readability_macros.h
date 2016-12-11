@@ -60,4 +60,22 @@
 #endif
 
 
+#ifndef UNREF_PARAM
+  /**
+   * Uses parameter x as a no-op, in order to suppress unused paramaeter
+   * compiler warnings. This should usually only be used when a paramater
+   * is used only in some circumstances, based on preprocessor definitions (such
+   * as NDEBUG, in assertions).
+   *
+   * If the unused parameter is part of a CONSTEXPR_ASSERT() condition, for
+   * example, can use this macro along with the comma operator in the result
+   * argument:
+   *
+   * return CONSTEXPR_ASSERT(y > 0, "needs y > 0, even though it returns x",
+   *                         (UNREF_PARAM(y), x));
+   */
+  #define UNREF_PARAM(x)  ((void) x)
+#endif
+
+
 #endif  // OOMUSE_CORE_READABILITY_MACROS_H
