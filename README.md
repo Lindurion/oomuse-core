@@ -71,7 +71,7 @@ int main() {
 Finally, install conan dependencies (including oomuse-core) and run your build from the command line:
 ```
 $ cd /path/to/yourproject/build
-$ conan install /path/to/yourproject/src
+$ conan install /path/to/yourproject/src --build=missing
 
 $ cmake /path/to/yourproject/src -G "Visual Studio 14 2015 Win64"  # Or "Xcode", "Unix Makefiles"
 $ cmake --build . --config Release
@@ -88,7 +88,7 @@ Recommend building from a separate directory (that's not underneath the cloned g
 Build & run tests:
 ```
 $ cd /path/to/build/oomuse-core/
-$ conan install /path/to/cloned/src/for/oomuse-core -o testing=True
+$ conan install /path/to/cloned/src/for/oomuse-core -o testing=True -s build_type=Debug --build=missing
 $ conan build /path/to/cloned/src/for/oomuse-core
 ```
 
